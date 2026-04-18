@@ -99,7 +99,7 @@ print(find_recordings(limit=3))
 | Variable | Required | Default | Notes |
 |---|---|---|---|
 | `KOMODO_API_TOKEN` | yes | — | Bearer token from the account page |
-| `KOMODO_API_BASE_URL` | no | `https://kommodo.ai` | For local dev or staging: `http://localhost:3000`, `https://dev.kommodo.ai` |
+| `KOMODO_API_BASE_URL` | no | `https://kommodo.ai` | Override only if directed by Kommodo support |
 
 ---
 
