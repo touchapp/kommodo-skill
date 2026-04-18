@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# One-shot installer for the Kommodo skill.
+#
+# Default: installs to the personal scope (~/.claude/skills/kommodo) as a
+# symlink back to this directory, so `git pull` upgrades the skill in place.
+#
+# Pass --copy to copy files instead of symlinking (useful when the source
+# tree might be moved or deleted).
+#
+# Pass --project <path> to install into <path>/.claude/skills/kommodo instead
+# of the personal scope.
+
+set -euo pipefail
+
+MODE="symlink"
+PROJECT_DIR=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --copy) MODE="copy"; shift ;;
+    --project) PROJECT_DIR="$2"; shift 2 ;;
+    -h|--help)
+      awk '/^[^#!]/{exit}/^# /{sub(/^# /,"");print}' "$0"
+      exit 0 ;;
+    *) echo "Unknown option: $1" >&2; exit 1 ;;
+  esac
+done
+
+SKILL_SRC="$(cd "$(dirname "$0")" && pwd)"
+SKILL_NAME="$(basename "$SKILL_SRC")"
+
+if [[ -n "$PROJECT_DIR" ]]; then
+  TARGET_ROOT="$PROJECT_DIR/.claude/skills"
+else
+  TARGET_ROOT="$HOME/.claude/skills"
+fi
+TARGET="$TARGET_ROOT/$SKILL_NAME"
+
+mkdir -p "$TARGET_ROOT"
+
+if [[ -e "$TARGET" || -L "$TARGET" ]]; then
+  echo "Removing existing $TARGET"
+  rm -rf "$TARGET"
+fi
+
+if [[ "$MODE" == "symlink" ]]; then
+  ln -s "$SKILL_SRC" "$TARGET"
+  echo "Linked $TARGET -> $SKILL_SRC"
+else
+  cp -R "$SKILL_SRC" "$TARGET"
+  echo "Copied $SKILL_SRC -> $TARGET"
+fi
+
+if [[ -z "${KOMODO_API_TOKEN:-}" ]]; then
+  cat <<EOF
+
+Skill installed. One more step — set your API token:
+
+  export KOMODO_API_TOKEN="<paste from https://kommodo.ai/account?tab=api>"
+
+Then fully quit and relaunch Claude Code.
+EOF
+else
+  echo
+  echo "Skill installed. KOMODO_API_TOKEN is set — you're ready. Relaunch Claude Code to pick up the skill."
+fi

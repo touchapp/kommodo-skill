@@ -1,0 +1,163 @@
+# kommodo-skill
+
+A [Claude Code](https://docs.claude.com/en/docs/claude-code) skill that wraps the [Kommodo](https://kommodo.ai) public API. Ask the agent for "recordings from last week on Acme" and it composes the HTTP calls for you — search, read AI summaries, download transcripts, rename, retag, and publish recordings as pages.
+
+---
+
+## What you get
+
+Seven named tools the agent can invoke by name, each mapped 1:1 to an HTTP endpoint:
+
+| Tool | What it does |
+|---|---|
+| `find_recordings` | Paginated list with filters (date range, title, team member, folder, has-page) |
+| `get_recording` | Full envelope including AI summary, chapters, action items |
+| `get_transcript` | JSON cues or WEBVTT, server-proxied |
+| `list_folders` | Folders you own or have access to |
+| `list_team_members` | Team owner + member list (team-owner-only) |
+| `update_recording` | Rename, retag, update description, move folder (write scope) |
+| `create_page` | Convert a recording into a published page (write scope) |
+
+See [`SKILL.md`](SKILL.md) for the full tool reference, [`references/`](references/) for response schemas and filter recipes.
+
+---
+
+## Install (pick one)
+
+### One-shot installer
+
+```bash
+git clone https://github.com/touchapp/kommodo-skill.git
+./kommodo-skill/install.sh
+```
+
+That symlinks `~/.claude/skills/kommodo` back to the cloned repo, so `git pull` upgrades the skill in place.
+
+Variations:
+```bash
+./install.sh --copy                # copy files instead of symlink
+./install.sh --project ./my-app    # install into my-app/.claude/skills/kommodo
+./install.sh --help
+```
+
+### Manual
+
+```bash
+git clone https://github.com/touchapp/kommodo-skill.git ~/kommodo-skill
+mkdir -p ~/.claude/skills
+ln -s ~/kommodo-skill ~/.claude/skills/kommodo
+```
+
+### Project-committed (shared with a team)
+
+```bash
+cd your-project
+mkdir -p .claude/skills
+git clone https://github.com/touchapp/kommodo-skill.git .claude/skills/kommodo
+git add .claude/skills/kommodo
+git commit -m "Add Kommodo skill for Claude Code"
+```
+
+---
+
+## Setup
+
+1. **Generate an API token** at https://kommodo.ai/account?tab=api. Pick scope:
+   - **Read** — search / summaries / transcripts
+   - **Read + write** — plus rename, retag, move, create-page
+
+2. **Export it** in your shell profile:
+   ```bash
+   echo 'export KOMODO_API_TOKEN="<paste from /account?tab=api>"' >> ~/.zshrc
+   source ~/.zshrc
+   ```
+
+3. **Restart Claude Code** fully (quit, not just reload) so it picks up the new skill.
+
+4. **Try it.** Ask Claude: *"List my five most recent Kommodo recordings."*
+
+---
+
+## Verify
+
+No Claude Code handy? Call the client directly:
+
+```bash
+export KOMODO_API_TOKEN="..."
+python3 -c "
+import sys
+sys.path.insert(0, 'scripts')
+from client import find_recordings
+print(find_recordings(limit=3))
+"
+```
+
+---
+
+## Environment variables
+
+| Variable | Required | Default | Notes |
+|---|---|---|---|
+| `KOMODO_API_TOKEN` | yes | — | Bearer token from the account page |
+| `KOMODO_API_BASE_URL` | no | `https://kommodo.ai` | For local dev or staging: `http://localhost:3000`, `https://dev.kommodo.ai` |
+
+---
+
+## HTTP API direct
+
+The skill is an optional wrapper — the HTTP API is the real contract. Every tool call resolves to one HTTP request you can make yourself:
+
+```bash
+curl -H "Authorization: Bearer $KOMODO_API_TOKEN" \
+     "https://kommodo.ai/api/public/v2/recordings?limit=5"
+```
+
+Full endpoint reference: https://kommodo.ai/account?tab=api
+
+---
+
+## Upgrading
+
+```bash
+cd path/to/kommodo-skill && git pull
+```
+
+If you used `./install.sh --copy` instead of symlink, re-run the installer after pulling.
+
+---
+
+## Versioning
+
+Tagged releases follow [semver](https://semver.org). Pin to a tag if you need stability:
+
+```bash
+git clone --branch v0.1.0 https://github.com/touchapp/kommodo-skill.git
+```
+
+Breaking changes get a major bump. Additive changes (new tools, new optional params) are minor. Bug fixes are patch.
+
+---
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `KOMODO_API_TOKEN not set` | env var missing | `export` it + restart your shell and Claude Code |
+| `401 Unauthorized` | token expired or wrong environment | Regenerate at `/account?tab=api`. Verify `KOMODO_API_BASE_URL` matches the token's environment. |
+| `403 Write scope required` | Read-scoped token used for a write endpoint | Regenerate with the **Read + write** toggle |
+| `429 Too Many Requests` | Hit 1000 req/hr or 100 concurrent per token | Honor `Retry-After` header, back off |
+| Skill not detected | Claude Code didn't rescan `~/.claude/skills/` | Fully quit and relaunch |
+
+---
+
+## Contributing
+
+Issues and PRs welcome at https://github.com/touchapp/kommodo-skill/issues.
+
+This repo is the source of truth for the skill artifact. The underlying API lives in the private dashboard repo; changes to the API surface land here when the API ships a corresponding release.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
