@@ -20,6 +20,8 @@ Seven named tools the agent can invoke by name, each mapped 1:1 to an HTTP endpo
 
 See [`SKILL.md`](SKILL.md) for the full tool reference, [`references/`](references/) for response schemas and filter recipes.
 
+Integrating without an agent (cron jobs, ETL, plain HTTP)? Start at [`references/api-quickstart.md`](references/api-quickstart.md) — Python sample for nightly transcript sync, full endpoint and error tables.
+
 ---
 
 ## Install (pick one)
