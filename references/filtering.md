@@ -22,6 +22,14 @@ Use this as a jumping-off point when translating a user's question into a
 - **Filter by AI status** — fetch, filter on `ai.status == 'ready'`.
 - **Filter by duration** — fetch, filter on `duration_seconds`.
 
+## `list_folders` filters
+
+| Param       | Shape  | Notes                                                                                                                |
+| ----------- | ------ | -------------------------------------------------------------------------------------------------------------------- |
+| `parent_id` | string | Folder children of this id. Pass `""` for root.                                                                      |
+| `member_id` | uid    | Folders owned by this uid. **Team-owner + premium tokens only**; otherwise 403. Useful for the team→member→folders walk. |
+| `cursor`    | opaque | From previous `next_cursor`.                                                                                          |
+
 ## Recipes
 
 ### "What did we record last week for Acme?"
@@ -35,6 +43,14 @@ Use this as a jumping-off point when translating a user's question into a
 
 1. `list_team_members()` → find Alice's uid.
 2. `find_recordings(member_id=alice_uid, since="2026-04-01T00:00:00Z")`.
+
+### "What folders does Alice keep her work in?"
+
+Requires a team-owner + premium token.
+
+1. `list_team_members()` → find Alice's uid.
+2. `list_folders(member_id=alice_uid)` → her folders, owned-only.
+3. Optional: pick one and `find_recordings(folder_id=…)` to drill in.
 
 ### "Which recordings still need an AI summary?"
 
