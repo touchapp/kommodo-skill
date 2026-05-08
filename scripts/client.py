@@ -149,13 +149,25 @@ def get_transcript(
 
 
 def list_folders(
-    parent_id: str | None = None, cursor: str | None = None
+    parent_id: str | None = None,
+    member_id: str | None = None,
+    cursor: str | None = None,
 ) -> dict[str, Any]:
-    """{folders: [...], next_cursor: str | None}"""
+    """
+    {folders: [...], next_cursor: str | None}
+
+    member_id (team-owner + premium tokens only): list folders owned by a
+    specific team member. Without it, returns folders the caller owns or has
+    been shared on.
+    """
     return _request(
         "GET",
         "/api/public/v2/folders",
-        params={"parent_id": parent_id, "cursor": cursor},
+        params={
+            "parent_id": parent_id,
+            "member_id": member_id,
+            "cursor": cursor,
+        },
     )
 
 

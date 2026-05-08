@@ -91,6 +91,7 @@ List recordings the token can see, newest first.
 | `since`      | ISO8601 | Only recordings created on or after this timestamp.                  |
 | `until`      | ISO8601 | Only recordings created on or before this timestamp.                 |
 | `q`          | string  | Substring match on title.                                            |
+| `folder_id`  | string  | Only recordings whose `parentId` matches. Caller must have access to the folder. |
 | `member_id`  | string  | Filter to a single team member. Team-owner + premium tokens only.    |
 | `has_page`   | bool    | `true` returns only recordings that have a published or draft page.  |
 | `cursor`     | opaque  | Pass through `next_cursor` from the previous response.               |
@@ -155,7 +156,7 @@ Returns `404` if no transcript exists yet (still processing or transcription dis
 
 | Method  | Path                                   | Purpose                                      | Scope |
 | ------- | -------------------------------------- | -------------------------------------------- | ----- |
-| GET     | `/folders`                             | List folders (`parent_id` to scope).         | read  |
+| GET     | `/folders`                             | List folders (`parent_id` to scope; `member_id` for team-owner queries). | read  |
 | GET     | `/team/members`                        | List team members the token can see.         | read  |
 | PATCH   | `/recordings/:id`                      | Update `title`, `description`, `folder_id`.  | write |
 | POST    | `/recordings/:id/pages`                | Create a page from a recording.              | write |

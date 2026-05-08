@@ -45,7 +45,7 @@ All tools are thin Python wrappers around the HTTP API in `scripts/client.py`. T
 
 3. `get_transcript(id, format='json')` — server-proxied; `format='json'` returns `{cues: [{start_seconds, end_seconds, text}]}`, `format='vtt'` returns raw WEBVTT. JSON is preferred for RAG / reasoning; VTT is for captions UI. Responses are cached client-side for 1 hour (content is immutable per recording).
 
-4. `list_folders(parent_id=None, cursor=None)` — folders the caller owns or has access to.
+4. `list_folders(parent_id=None, member_id=None, cursor=None)` — folders the caller owns or has access to. Pass `member_id` (team-owner + premium tokens only) to list folders owned by a specific team member instead.
 
 5. `list_team_members()` — needed to resolve "who"-filters (`member_id` takes a uid).
 
