@@ -2,6 +2,8 @@
 
 A [Claude Code](https://docs.claude.com/en/docs/claude-code) skill that wraps the [Kommodo](https://kommodo.ai) public API. Ask the agent for "recordings from last week on Acme" and it composes the HTTP calls for you — search, read AI summaries, download transcripts, rename, retag, and publish recordings as pages.
 
+We are actively working on this API. Feedback is welcome! feedback@kommodo.ai 
+
 ---
 
 ## What you get
